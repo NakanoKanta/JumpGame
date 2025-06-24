@@ -5,6 +5,17 @@ using UnityEngine.SceneManagement;
 
 public class RankingButton : MonoBehaviour
 {
+    [SerializeField] private AudioClip clickSound; // 効果音
+    private AudioSource audioSource;
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+    }
     public void GoToRanking()
     {
         float lastScore = PlayerPrefs.GetFloat("LastScore", -1f);
@@ -19,6 +30,16 @@ public class RankingButton : MonoBehaviour
         else
         {
             Debug.Log("スコアは既に登録済み、または無効です");
+        }
+
+        StartCoroutine(PlaySoundAndLoadScene());
+    }
+    private IEnumerator PlaySoundAndLoadScene()
+    {
+        if (clickSound != null)
+        {
+            audioSource.PlayOneShot(clickSound);
+            yield return new WaitForSeconds(clickSound.length); // 効果音の再生が終わるまで待つ
         }
 
         SceneManager.LoadScene("RankingScene");

@@ -9,14 +9,19 @@ public class GoalManager : MonoBehaviour
 
     void Start()
     {
-        TitleButton.SetActive(false);
+        if(TitleButton != null)
+            TitleButton.SetActive(false);
     }
 
     public void OnCollisionExit2D(Collision2D collision)
     {
-        TitleButton.SetActive(true);
+        //TitleButton.SetActive(true);
         if (collision.gameObject.CompareTag("PlayerTag"))
         {
+            if (TitleButton != null)
+            {
+                TitleButton.SetActive(true);
+            }
             Debug.Log("GOAL");
            
             if (CountManager != null)
