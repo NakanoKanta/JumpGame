@@ -4,27 +4,61 @@ using UnityEngine;
 
 public class PlayerMove : MonoBehaviour
 {
-    [SerializeField] float _PlayerJumpPower;
-    [SerializeField] bool JumpFrag = false;
+    public float PlayerJumpPower;
+    [SerializeField] float PlayerMovePower;
+    public bool JumpFrag = false;
 
-    Rigidbody2D player = default;
+    Rigidbody2D player_rb;
+    float JumpCount = 0;
+    float player_move;
     
     void Start()
     {
-        player = GetComponent<Rigidbody2D>();
+        player_rb= GetComponent<Rigidbody2D>();
     }
-
-    // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Jump"))
+        if (Input.GetKey(KeyCode.Space))
         {
-            Debug.Log(JumpFrag);
-            if (JumpFrag == true)
+            JumpCount += 2 * Time.deltaTime;
+            //Debug.Log(JumpCount);
+        }
+        if(JumpFrag == true)
+            PlayerJump();
+        if (JumpFrag == false)
+        {
+            player_move = Input.GetAxisRaw("Horizontal");
+            PlayerMoveX(player_move);
+        }
+            
+    }
+
+    //PlayerのJumpの動き
+    void PlayerJump()
+    {
+        if (Input.GetButtonUp("Jump"))
+        {
+            if (JumpCount >= 0 && JumpCount < 1)
             {
-                player.AddForce(Vector2.up * _PlayerJumpPower, ForceMode2D.Impulse);
+                // 小ジャンプ
+                player_rb.AddForce(Vector2.up * PlayerJumpPower, ForceMode2D.Impulse);
+            }
+            else if (JumpCount >= 1 && JumpCount < 2)
+            {
+                // 中ジャンプ
+                player_rb.AddForce(Vector2.up * PlayerJumpPower * 1.25f, ForceMode2D.Impulse);
+            }
+            else if (JumpCount >= 2 && JumpCount < 10)
+            {
+                // 大ジャンプ
+                player_rb.AddForce(Vector2.up * PlayerJumpPower * 1.5f, ForceMode2D.Impulse);
             }
         }
+    }
+    //左右の動き
+    void PlayerMoveX(float horizontal)
+    {
+        player_rb.velocity = new Vector2(horizontal * PlayerMovePower,player_rb.velocity.y);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -32,6 +66,7 @@ public class PlayerMove : MonoBehaviour
         if (collision.gameObject.CompareTag("GroundTag"))
         {
             JumpFrag = true;
+            JumpCount = 0;
         }
     }
     private void OnCollisionExit2D(Collision2D collision)
